@@ -1,62 +1,101 @@
 import logging
-from trie import Trie
-from trie import dynamic_parse
+import trie
+import triehelper
+from entity import Result  # Importing the Result class from the entity module
 
-class Result:
-    def __init__(self, street='', ward='', district='', city=''):
-        self.street = street
-        self.ward = ward
-        self.district = district
-        self.city = city
-
-    def __repr__(self):
-        return f"Result(street='{self.street}', ward='{self.ward}', district='{self.district}', city='{self.city}')"
+# Simulate entity and parse (you need to implement or adjust based on actual structure)
 
 def main():
-    trie_dic = import_dictionary("./assets/example.txt")
+    test_mode = 3
 
-    input_addresses = [
-        "nguyen tri phuong, phuong 10, quan 10, tp ho chi minh",
-        # "nguyen tri phuong, phuong 10, quan 10, tp ho chi minh",
-        # "nguyen tri phuong, phuong 10, tp ho chi minh, quan 10",
-        # "nguyen tri phuong phuong 10 tp ho chi minh quan 10",
+    if test_mode == 1:
+        test_simple()
+    elif test_mode == 2:
+        test_with_real_cases()
+    else:
+        debug_trie()
+
+
+def debug_trie():
+    wards = triehelper.import_ward_db("./assets/wards.csv")
+    trie_dic = trie.Trie(False)
+    trie_dic.build_trie_with_wards(wards)
+
+    sentence = "thị trấn Ba Hàng Đồi"
+    sentence = triehelper.normalize_input(sentence)
+
+    word, _ = trie_dic.extract_word(sentence, 0)
+    print(word)
+
+
+def test_simple():
+    wards = triehelper.import_ward_db("./assets/wards.csv")
+    trie_dic = trie.Trie(False)
+    trie_dic.build_trie_with_wards(wards)
+
+    reversed_trie = trie.Trie(True)
+    reversed_trie.build_trie_with_wards(wards)
+
+    input_address = [
+        "Tiểu khu 3, thị trấn Ba Hàng, huyện Phổ Yên, tỉnh Thái Nguyên.",
     ]
 
-    for address in input_addresses:
-        result = classify_address(normalize_input(address), trie_dic)
-        logging.info(f"final result: {result}")
+    for i in range(1):
+        address = input_address[0]
+        result = triehelper.classify_address(address, trie_dic, reversed_trie)
+        if i == 0:
+            log_result(result)
 
-def classify_address(input_string, trie_dic):
-    result = Result()
+        if True:
+            log_result(result)
+            print_result("CorrectedResult")  # Replace with actual corrected result logic
+            log_words("Words")  # Replace with actual words logic
+            log_words("SkipWords")  # Replace with actual skip words logic
+            print("OriginLocations:", "ToString()")  # Replace with actual Locations logic
+            print("Locations:", "ToString()")  # Replace with actual Locations logic
+            break
 
-    ok, words = dynamic_parse(input_string, trie_dic)
-    if ok:
-        log_words(words)
 
-    return result
+def test_with_real_cases():
+    wards = triehelper.import_ward_db("./assets/wards.csv")
+    trie_tree = trie.Trie(False)
+    trie_tree.build_trie_with_wards(wards)
 
-def normalize_input(input_string):
-    return input_string.lower()
+    reversed_trie = trie.Trie(True)
+    reversed_trie.build_trie_with_wards(wards)
 
-def import_dictionary(file_name):
-    trie_dic = Trie()
+    cases = triehelper.import_test_cases("./assets/inputs.json")
+    fail_num = 0
 
-    try:
-        with open(file_name, 'r', encoding='utf-8') as file:
-            for line in file:
-                line = line.strip()
-                if line:
-                    trie_dic.add_word(line)
-    except IOError as e:
-        logging.error(f"Error opening file: {e}")
+    for i, c in enumerate(cases):
+        result = classify_address(c['Input'], trie_tree, reversed_trie)
+        if result.ward != c['Output']['Ward'] or result.district != c['Output']['District'] or result.province != c['Output']['Province']:
+            log_result(result)
+            print("DebugFlag")  # Replace with actual debug flag logic
+            log_words("Words")  # Replace with actual words logic
+            log_words("SkipWords")  # Replace with actual skip words logic
+            print("OriginLocations:", "ToString()")  # Replace with actual Locations logic
+            print("Locations:", "ToString()")  # Replace with actual Locations logic
+            return
+            fail_num += 1
+        else:
+            print(f"{i} Passed")
 
-    return trie_dic
+    print(f"Fail num: {fail_num} / {len(cases)}")
+
+
+def log_result(result: Result):
+    logging.info(f"Result: {result}")
+
+
+def print_result(result):
+    print(f"Result: {result}")
+
 
 def log_words(words):
-    logging.info(f"Words Count: {len(words)}")
-    for i, word in enumerate(words, 1):
-        logging.info(f"{i}: {word}")
+    text = "|".join(words)
+    print(f"Words: {text}")
+
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     main()
