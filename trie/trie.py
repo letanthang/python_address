@@ -1,5 +1,3 @@
-from typing import Dict, List, Optional
-import collections
 import stringutil
 from entity import Ward, District, Province, Location, Locations, LocationType
 from .distance import levenshtein_distance
@@ -10,8 +8,8 @@ ProvinceMap = {}
 
 # Constants for weights
 HighWeight = 3
-LowWeight = 2
 MediumWeight = 1
+LowWeight = 2
 LowestWeight = 0
 
 class WordDistance:
@@ -53,7 +51,7 @@ class Trie:
             child.value = char
             node = child
 
-        location = Location(location_type, id, word, weight)
+        location = Location(word, location_type, id, weight)
         node.locations.append(location)
         node.is_end = True
         # node.weight = weight

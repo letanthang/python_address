@@ -65,8 +65,16 @@ def import_ward_db(filename: str) -> list[Ward]:
 
 # Import test cases from a JSON file
 def import_test_cases(file_name: str) -> list[TestCase]:
-    test_cases = []
+    try:
+        with open(file_name, 'r', encoding='utf-8') as file:
+            test_cases = json.load(file)
+    except Exception as err:
+        logging.error(f"Error reading test cases: {err}")
+        raise
 
+    return test_cases
+
+def import_test_cases_new(file_name):
     try:
         with open(file_name, 'r', encoding='utf-8') as file:
             test_cases = json.load(file)

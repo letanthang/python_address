@@ -18,7 +18,6 @@ def dynamic_parse(origin_sentence, trie_dic: trie.Trie, reversed_trie: trie.Trie
     skip_words = []
     words = []
     locations = []
-    DebugFlag = "empty"
     result = Result()
 
     if trie_dic is None or not origin_sentence:
@@ -69,7 +68,7 @@ def dynamic_parse(origin_sentence, trie_dic: trie.Trie, reversed_trie: trie.Trie
 
     Words = words
     OriginLocations = locations
-    locations = trie_dic.filter_location(locations, words, origin_sentence)
+    locations = trie.filter_location(locations, words, origin_sentence)
     Locations = locations
     SkipWords = skip_words
 
@@ -77,8 +76,8 @@ def dynamic_parse(origin_sentence, trie_dic: trie.Trie, reversed_trie: trie.Trie
     if result.is_complete():
         return result
 
-    CorrectedResult = dynamic_parse_with_levenshtein(skip_words, reversed_trie)
-    merge_result(CorrectedResult, result)
+    # CorrectedResult = dynamic_parse_with_levenshtein(skip_words, reversed_trie)
+    # merge_result(CorrectedResult, result)
 
     return result
 
@@ -95,7 +94,7 @@ def dynamic_parse_with_levenshtein(skip_words, trie_dic: trie.Trie):
         if corrected_word:
             corrected_words.append(corrected_word)
 
-            sorted_locations = sorted(node.locations)
+            sorted_locations = sorted(node.locations, key=lambda location: location.weight, reverse=True)
             add_location_to_result(result, sorted_locations[0])
 
         print_words(corrected_words, "corrected words: ")

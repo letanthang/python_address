@@ -1,18 +1,8 @@
 import re
 from typing import List, Dict
 from .trie import WardMap, DistrictMap, HighWeight, MediumWeight, LowWeight, LowestWeight
+from entity import Location, LocationType
 
-class Location:
-    def __init__(self, name, location_type, id_, weight, province_code=None, district_code=None):
-        self.name = name
-        self.location_type = location_type
-        self.id = id_
-        self.weight = weight
-        self.province_code = province_code
-        self.district_code = district_code
-
-    def __lt__(self, other):
-        return self.weight > other.weight  # Đảo ngược thứ tự cho sắp xếp giảm dần
 
 def filter_location(locations: List[Location], words: List[str], sentence: str) -> List[Location]:
     if not locations:
@@ -30,7 +20,7 @@ def filter_location(locations: List[Location], words: List[str], sentence: str) 
         filter_province_locations.append(location_map[province_ids[0]])
     elif len(province_ids) > 0:
         filter_province_locations = [location_map[id_] for id_ in province_ids]
-        filter_province_locations.sort()
+        filter_province_locations.sort(key=lambda location: location.weight, reverse=True)
 
     # choose only 1 province
     if filter_province_locations:
@@ -50,7 +40,7 @@ def filter_location(locations: List[Location], words: List[str], sentence: str) 
                 words_count_map[location_map[id_].name] -= 1
                 filter_district_locations.append(location_map[id_])
 
-        filter_district_locations.sort()
+        filter_district_locations.sort(key=lambda location: location.weight, reverse=True)
         if not filter_district_locations:
             filter_district_locations.append(location_map[district_ids[0]])
 
@@ -63,27 +53,32 @@ def filter_location(locations: List[Location], words: List[str], sentence: str) 
     # filter ward
     filter_ward_locations = []
     if ward_ids:
+        # filter by both province and district if possible
         if province_id and district_id:
             for id_ in ward_ids:
                 ward = WardMap.get(id_)
                 if ward and ward.province_code == province_id and ward.district_code == district_id and words_count_map.get(location_map[id_].name, 0) > 0:
                     filter_ward_locations.append(location_map[id_])
+        # filter wards by province
         if not filter_ward_locations:
             for id_ in ward_ids:
                 ward = WardMap.get(id_)
                 if ward and ward.province_code == province_id and words_count_map.get(location_map[id_].name, 0) > 0:
                     filter_ward_locations.append(location_map[id_])
+        # filter wards by district
         if not filter_ward_locations:
             for id_ in ward_ids:
                 ward = WardMap.get(id_)
                 if ward and ward.district_code in district_ids and words_count_map.get(location_map[id_].name, 0) > 0:
                     filter_ward_locations.append(location_map[id_])
 
+        # if we can't filter ward by district, get the first one and still have word count
         if not filter_ward_locations and words_count_map.get(location_map[ward_ids[0]].name, 0) > 0 and location_map[ward_ids[0]].weight > LowWeight:
             filter_ward_locations.append(location_map[ward_ids[0]])
-        else:
-            filter_ward_locations.sort()
+        elif len(filter_ward_locations) > 1:
+            filter_ward_locations.sort(key=lambda location: location.weight, reverse=True)
 
+    # choose only 1 ward
     if filter_ward_locations:
         if len(filter_ward_locations) == 1 or filter_ward_locations[0].weight != filter_ward_locations[1].weight:
             result.append(filter_ward_locations[0])
@@ -102,7 +97,7 @@ def find_occurrences(big: str, small: str) -> int:
 
 def simplify(locations: List[Location]) -> (Dict[str, Location], List[str], List[str], List[str]):
     location_map = {loc.id: loc for loc in locations}
-    province_ids = [loc.id for loc in locations if loc.location_type == "Province"]
-    district_ids = [loc.id for loc in locations if loc.location_type == "District"]
-    ward_ids = [loc.id for loc in locations if loc.location_type == "Ward"]
+    province_ids = [loc.id for loc in locations if loc.location_type == LocationType.PROVINCE]
+    district_ids = [loc.id for loc in locations if loc.location_type == LocationType.DISTRICT]
+    ward_ids = [loc.id for loc in locations if loc.location_type == LocationType.WARD]
     return location_map, ward_ids, district_ids, province_ids
