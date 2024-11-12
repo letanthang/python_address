@@ -41,7 +41,7 @@ def test_simple():
         "Tiểu khu 3, thị trấn Ba Hàng, huyện Phổ Yên, tỉnh Thái Nguyên.",
     ]
 
-    for i in range(1):
+    for i in range(100000):
         address = input_address[0]
         result = triehelper.classify_address(address, trie_dic, reversed_trie)
         if i == 0:

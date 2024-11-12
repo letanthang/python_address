@@ -4,7 +4,6 @@ import stringutil
 
 # Global variables
 Debug = False
-DebugFlag = "empty"
 Words = []
 OriginLocations = []
 SkipWords = []
