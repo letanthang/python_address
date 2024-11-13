@@ -96,7 +96,7 @@ def import_test_cases_new(file_name):
 
 def build_tries():
     global trie_tree, reversed_trie_tree
-    wards = import_ward_db("./assets/wards.csv")
+    wards = import_ward_db("python_address/assets/wards.csv")
     trie_tree = Trie(False)
     trie_tree.build_trie_with_wards(wards)
     reversed_trie_tree = Trie(True)

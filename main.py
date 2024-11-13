@@ -1,6 +1,6 @@
 import logging
 import trie
-import triehelper
+import python_address
 import parse
 from entity import Result
 
@@ -8,7 +8,7 @@ from entity import Result
 # Simulate entity and parse (you need to implement or adjust based on actual structure)
 
 def main():
-    test_mode = 3
+    test_mode = 1
 
     if test_mode == 1:
         test_simple()
@@ -20,24 +20,24 @@ def main():
         debug_trie()
 
 def test_prebuild_trie():
-    triehelper.build_tries()
-    result = triehelper.process_address("Tiểu khu 3, thị trấn Ba Hàng, huyện Phổ Yên, tỉnh Thái Nguyên.")
+    python_address.build_tries()
+    result = python_address.process_address("Tiểu khu 3, thị trấn Ba Hàng, huyện Phổ Yên, tỉnh Thái Nguyên.")
     print_result(result)
 
 def debug_trie():
-    wards = triehelper.import_ward_db("./assets/wards.csv")
+    wards = python_address.import_ward_db("python_address/assets/wards.csv")
     trie_dic = trie.Trie(False)
     trie_dic.build_trie_with_wards(wards)
 
     sentence = "thị trấn Ba Hàng Đồi"
-    sentence = triehelper.normalize_input(sentence)
+    sentence = python_address.normalize_input(sentence)
 
     word, _ = trie_dic.extract_word(sentence, 0)
     print(word)
 
 
 def test_simple():
-    wards = triehelper.import_ward_db("./assets/wards.csv")
+    wards = python_address.import_ward_db("python_address/assets/wards.csv")
     trie_dic = trie.Trie(False)
     trie_dic.build_trie_with_wards(wards)
 
@@ -50,7 +50,7 @@ def test_simple():
 
     for i in range(100000):
         address = input_address[0]
-        result = triehelper.classify_address(address, trie_dic, reversed_trie)
+        result = python_address.classify_address(address, trie_dic, reversed_trie)
         if i == 0:
             print_result(result)
 
@@ -65,18 +65,18 @@ def test_simple():
 
 
 def test_with_real_cases():
-    wards = triehelper.import_ward_db("./assets/wards.csv")
+    wards = python_address.import_ward_db("python_address/assets/wards.csv")
     trie_tree = trie.Trie(False)
     trie_tree.build_trie_with_wards(wards)
 
     reversed_trie = trie.Trie(True)
     reversed_trie.build_trie_with_wards(wards)
 
-    cases = triehelper.import_test_cases_new("./assets/inputs.json")
+    cases = python_address.import_test_cases_new("python_address/assets/inputs.json")
     fail_num = 0
 
     for i, c in enumerate(cases):
-        result = triehelper.classify_address(c["text"], trie_tree, reversed_trie)
+        result = python_address.classify_address(c["text"], trie_tree, reversed_trie)
         if result.ward != c["result"]["ward"] or result.district != c["result"]["district"] or result.province != c["result"]["province"]:
             print_result(result)
             log_words(parse.Words)

@@ -9,6 +9,9 @@ setup(
     author='Le Tan Thang',
     author_email='letanthang@gmail.com',
     url='https://github.com/letanthang/python_address',
+    package_data={
+        'python_address': ['assets/*'],  # Specifies the files to include
+    },
     packages=find_packages(),
     install_requires=[],
 )
