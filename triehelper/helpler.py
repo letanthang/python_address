@@ -6,6 +6,10 @@ from entity import Result, Ward, TestCase
 from trie import Trie
 from parse import dynamic_parse
 
+hello="hello1"
+trie_tree: Trie
+reversed_trie_tree: Trie
+
 # Normalize input string
 def normalize_input(input_str: str) -> str:
     input_str = input_str.lower()
@@ -35,6 +39,12 @@ def normalize_output(result: Result) -> Result:
 def classify_address(input_str: str, trie_dic: Trie, reversed_trie: Trie) -> Result:
     input_str = normalize_input(input_str)
     result = dynamic_parse(input_str, trie_dic, reversed_trie)
+    result = normalize_output(result)
+    return result
+
+def process_address(input_str: str) -> Result:
+    input_str = normalize_input(input_str)
+    result = dynamic_parse(input_str, trie_tree, reversed_trie_tree)
     result = normalize_output(result)
     return result
 
@@ -83,3 +93,12 @@ def import_test_cases_new(file_name):
         raise
 
     return test_cases
+
+def build_tries():
+    global trie_tree, reversed_trie_tree
+    wards = import_ward_db("./assets/wards.csv")
+    trie_tree = Trie(False)
+    trie_tree.build_trie_with_wards(wards)
+    reversed_trie_tree = Trie(True)
+    reversed_trie_tree.build_trie_with_wards(wards)
+

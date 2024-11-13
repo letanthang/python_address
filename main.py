@@ -2,20 +2,27 @@ import logging
 import trie
 import triehelper
 import parse
-from entity import Result  # Importing the Result class from the entity module
+from entity import Result
+
 
 # Simulate entity and parse (you need to implement or adjust based on actual structure)
 
 def main():
-    test_mode = 2
+    test_mode = 3
 
     if test_mode == 1:
         test_simple()
     elif test_mode == 2:
         test_with_real_cases()
+    elif test_mode == 3:
+        test_prebuild_trie()
     else:
         debug_trie()
 
+def test_prebuild_trie():
+    triehelper.build_tries()
+    result = triehelper.process_address("Tiểu khu 3, thị trấn Ba Hàng, huyện Phổ Yên, tỉnh Thái Nguyên.")
+    print_result(result)
 
 def debug_trie():
     wards = triehelper.import_ward_db("./assets/wards.csv")
