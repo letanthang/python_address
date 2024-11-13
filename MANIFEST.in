@@ -1,1 +1,1 @@
-include python_address/assets/*
+include python_address/assets/wards.csv
