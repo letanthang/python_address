@@ -2,6 +2,7 @@ import csv
 import json
 import logging
 import stringutil
+import importlib.resources
 from entity import Result, Ward, TestCase
 from trie import Trie
 from parse import dynamic_parse
@@ -53,7 +54,7 @@ def import_ward_db(filename: str) -> list[Ward]:
     results = []
 
     # Open the CSV file
-    with open(filename, mode='r', encoding='utf-8') as file:
+    with importlib.resources.open_text('python_address.assets', 'wards.csv', encoding='utf-8') as file:
         reader = csv.reader(file, delimiter=';')
 
         # Skip the header
@@ -96,7 +97,7 @@ def import_test_cases_new(file_name):
 
 def build_tries():
     global trie_tree, reversed_trie_tree
-    wards = import_ward_db("python_address/assets/wards.csv")
+    wards = import_ward_db("wards.csv")
     trie_tree = Trie(False)
     trie_tree.build_trie_with_wards(wards)
     reversed_trie_tree = Trie(True)
